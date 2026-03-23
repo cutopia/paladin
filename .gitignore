@@ -1,16 +1,40 @@
-# Godot 4+ specific ignores
+# Godot project files
+*.tres
+*.import
+
+# Editor and user data
+.editor_settings
+*.editorsettings
+*.provisioner
+*.remap
+
+# Build outputs
+export_*
+bin/
+obj/
+
+# IDE and editor files
 .godot/
-.nomedia
+.godot/editor/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
 
-# Godot-specific ignores
-.import/
-export.cfg
-export_credentials.cfg
+# OS files
+.DS_Store
+Thumbs.db
 
-# Imported translations (automatically generated from CSV files)
-*.translation
+# Generated assets (if any)
+assets/sprites/generated/
+assets/sounds/processed/
 
-# Mono-specific ignores
-.mono/
-data_*/
-mono_crash.*.json
+# Logs
+logs/
+*.log
+
+# Test coverage reports
+htmlcov/
+.coverage
+.pytest_cache/
