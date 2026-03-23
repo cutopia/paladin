@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://main"]
+
+[ext_resource type="Texture2D" uid="uid://cpopp8hcxy6ee" path="res://dungeon_floor.png" id="1_o5qli"]
+
+[node name="Main" type="Node2D"]
+
+[node name="FloorSprite" type="Sprite2D" parent="."]
+position = Vector2(320, 240)
+texture = ExtResource("1_o5qli")

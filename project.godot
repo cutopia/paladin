@@ -1,0 +1,38 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Floor Tile Game"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.5")
+config/icon="res://icon.svg"
+
+[audio]
+
+driver="OpenAL"
+driver/enabled=true
+driver/buffer_size=2048
+driver/sample_rate=44100
+driver/channels=2
+
+[core]
+
+debug/clear_globals_on_reload=true
+
+[general]
+
+config_version=5
+editor_version="4.5.stable"
+
+[rendering]
+
+vrs/mode="disabled"
+renderer="forward_plusplus"
