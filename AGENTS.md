@@ -2,6 +2,12 @@
 
 Develop the game in an iterative fashion: develop a single piece of functionality and then stop so the progress can be playtested by a human. Always keep the game playable after each step so it can be validated by human testers. godot is available on the bash command line. You can run it to see errors in your godot scripts so you can fix them.
 
+Keep each task as small as possible. 
+
+If you get into a potential loop of repeating tool calls, stop!
+
+If you are unsure of something, ask a clarifying question!
+
 ## Game Engine & Language
 
 - **Engine**: Godot 4.5 (GDScript)

@@ -77,22 +77,22 @@ func update_adjacent_walls(x: int, y: int, tile: Tile) -> void:
 	# Update north neighbor (if exists)
 	if y > 0:
 		var north_tile = tiles[y-1][x]
-		north_tile.set_state(Side.SOUTH, tile.get_state(Side.NORTH))
+		north_tile.set_state(Side.SIDE_BOTTOM, tile.get_state(Side.SIDE_TOP))
 	
 	# Update east neighbor (if exists)
 	if x < grid_width - 1:
 		var east_tile = tiles[y][x+1]
-		east_tile.set_state(Side.WEST, tile.get_state(Side.EAST))
+		east_tile.set_state(Side.SIDE_LEFT, tile.get_state(Side.SIDE_RIGHT))
 	
 	# Update south neighbor (if exists)
 	if y < grid_height - 1:
 		var south_tile = tiles[y+1][x]
-		south_tile.set_state(Side.NORTH, tile.get_state(Side.SOUTH))
+		south_tile.set_state(Side.SIDE_TOP, tile.get_state(Side.SIDE_BOTTOM))
 	
 	# Update west neighbor (if exists)
 	if x > 0:
 		var west_tile = tiles[y][x-1]
-		west_tile.set_state(Side.EAST, tile.get_state(Side.WEST))
+		west_tile.set_state(Side.SIDE_RIGHT, tile.get_state(Side.SIDE_LEFT))
 
 func _input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
