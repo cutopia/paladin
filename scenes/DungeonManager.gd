@@ -3,6 +3,7 @@
 extends Node2D
 
 @export var grid_width: int = 20
+@export var grid_height: int = 20
 @export var tile_size: int = 64
 
 var tiles: Array[Array] = []
