@@ -2,6 +2,9 @@
 
 extends Node2D
 
+const Side = preload("res://scripts/Side.gd")
+const Tile = preload("res://scripts/Tile.gd")
+
 @export var grid_width: int = 20
 @export var grid_height: int = 20
 @export var tile_size: int = 64
@@ -22,7 +25,7 @@ func generate_dungeon() -> void:
 	tiles.clear()
 	
 	for y in range(grid_height):
-		var row: Array[Tile] = []
+		var row = []
 		for x in range(grid_width):
 			var tile = Tile.new()
 			row.append(tile)
