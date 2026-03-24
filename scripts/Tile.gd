@@ -26,6 +26,11 @@ func rotate_clockwise() -> void:
 	var south = sides[Side.SIDE_BOTTOM]
 	var west = sides[Side.SIDE_LEFT]
 	
+	print("  North(%s) -> East" % get_state_name(north))
+	print("  East(%s) -> South" % get_state_name(east))
+	print("  South(%s) -> West" % get_state_name(south))
+	print("  West(%s) -> North" % get_state_name(west))
+	
 	sides[Side.SIDE_TOP] = west
 	sides[Side.SIDE_RIGHT] = north
 	sides[Side.SIDE_BOTTOM] = east
@@ -37,6 +42,11 @@ func rotate_counter_clockwise() -> void:
 	var east = sides[Side.SIDE_RIGHT]
 	var south = sides[Side.SIDE_BOTTOM]
 	var west = sides[Side.SIDE_LEFT]
+	
+	print("  North(%s) -> West" % get_state_name(north))
+	print("  East(%s) -> North" % get_state_name(east))
+	print("  South(%s) -> East" % get_state_name(south))
+	print("  West(%s) -> South" % get_state_name(west))
 	
 	sides[Side.SIDE_TOP] = east
 	sides[Side.SIDE_RIGHT] = south
