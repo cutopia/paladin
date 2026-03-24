@@ -66,7 +66,6 @@ func create_wall_visuals(wall_layer: CanvasLayer, tile: Tile) -> void:
 	for side in [Side.SIDE_TOP, Side.SIDE_RIGHT, Side.SIDE_BOTTOM, Side.SIDE_LEFT]:
 		var lin = Line2D.new()
 		lin.width = line_width
-		lin.set_default_color(wall_color)
 		
 		match side:
 			Side.SIDE_TOP:
@@ -95,6 +94,8 @@ func update_wall_visuals(wall_layer: CanvasLayer, tile: Tile) -> void:
 		if child is Line2D and child.has_meta("side"):
 			var side = child.get_meta("side")
 			var state = tile.get_state(side)
+			
+			print("Wall at side %d: state=%d" % [side, state])
 			
 			# Set color based on state
 			child.set_default_color(wall_color if state == State.WALL else doorway_color)

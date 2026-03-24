@@ -13,9 +13,15 @@ var tiles: Array[Array] = []
 var paladin: Node2D
 var monsters: Array[Node2D] = []
 var current_level: int = 1
+var floor_texture: Texture2D
+
+# Visual nodes storage
+var tile_visuals: Array[Array] = []
 
 func _ready():
-	pass
+	floor_texture = preload("res://dungeon_floor.png")
+	# Connect to draw signal for wall rendering
+	connect("draw", Callable(self, "_draw_walls"))
 
 func start_game() -> void:
 	print("Starting game at level %d" % current_level)
@@ -26,15 +32,81 @@ func start_game() -> void:
 
 func generate_dungeon() -> void:
 	tiles.clear()
+	tile_visuals.clear()
 	
 	for y in range(grid_height):
 		var row = []
+		var visual_row = []
 		for x in range(grid_width):
 			var tile = Tile.new()
 			row.append(tile)
+			visual_row.append(null)
 		tiles.append(row)
+		tile_visuals.append(visual_row)
 	
 	print("Generated dungeon grid: %dx%d" % [grid_width, grid_height])
+	
+	# Create visual representation for all tiles
+	for y in range(grid_height):
+		for x in range(grid_width):
+			create_tile_visual(x, y, tiles[y][x])
+
+func create_tile_visual(x: int, y: int, tile: Tile) -> void:
+	var floor_sprite = Sprite2D.new()
+	floor_sprite.texture = floor_texture
+	floor_sprite.position = Vector2(x * tile_size + tile_size/2, y * tile_size + tile_size/2)
+	add_child(floor_sprite)
+	
+	# Create wall visualization using a Control node for lines
+	var wall_container = Control.new()
+	wall_container.name = "WallVisuals_%d_%d" % [x, y]
+	wall_container.size = Vector2(tile_size, tile_size)
+	wall_container.position = Vector2(x * tile_size, y * tile_size)
+	floor_sprite.add_child(wall_container)
+	
+	# Store reference for later updates
+	floor_sprite.set_meta("grid_x", x)
+	floor_sprite.set_meta("grid_y", y)
+	floor_sprite.set_meta("wall_layer", wall_container)
+	
+	tile_visuals[y][x] = floor_sprite
+
+func _draw_walls() -> void:
+	# Draw all walls using CanvasItem draw methods
+	for y in range(grid_height):
+		for x in range(grid_width):
+			var tile = tiles[y][x]
+			var wc = tile_visuals[y][x].get_meta("wall_layer")
+			if not wc:
+				continue
+			
+			var wall_color = Color(0.6, 0.5, 0.4, 1)  # Brownish for walls
+			var doorway_color = Color(0.3, 0.7, 0.9, 1)  # Blue-ish for doorways
+			var line_width = 8
+			
+			# Draw each side based on its state
+			for side in [Side.SIDE_TOP, Side.SIDE_RIGHT, Side.SIDE_BOTTOM, Side.SIDE_LEFT]:
+				var state = tile.get_state(side)
+				var color = wall_color if state == Tile.State.WALL else doorway_color
+				
+				match side:
+					Side.SIDE_TOP:
+						draw_line(wc.position + Vector2(0, 0), wc.position + Vector2(tile_size, 0), color, line_width)
+					Side.SIDE_RIGHT:
+						draw_line(wc.position + Vector2(tile_size, 0), wc.position + Vector2(tile_size, tile_size), color, line_width)
+					Side.SIDE_BOTTOM:
+						draw_line(wc.position + Vector2(tile_size, tile_size), wc.position + Vector2(0, tile_size), color, line_width)
+					Side.SIDE_LEFT:
+						draw_line(wc.position + Vector2(0, tile_size), wc.position + Vector2(0, 0), color, line_width)
+
+func update_wall_visuals(wall_container: Control, tile: Tile) -> void:
+	# Update the stored tile reference and redraw
+	wall_container.set_meta("tile", tile)
+	queue_redraw()
+	
+	var x = int(wall_container.position.x / tile_size)
+	var y = int(wall_container.position.y / tile_size)
+	print("Updated walls at (%d,%d)" % [x, y])
 
 func spawn_paladin() -> void:
 	# Spawn paladin at center of dungeon
@@ -95,12 +167,36 @@ func rotate_tile(x: int, y: int, clockwise: bool = true) -> bool:
 	var tile = tiles[y][x]
 	
 	if clockwise:
+		print("=== TILE ROTATION (Clockwise) ===")
+		print("Tile position: (%d, %d)" % [x, y])
+		print("Before rotation: %s" % tile)
+		
 		tile.rotate_clockwise()
+		
+		print("After rotation:  %s" % tile)
+		print("=================================")
 	else:
+		print("=== TILE ROTATION (Counter-Clockwise) ===")
+		print("Tile position: (%d, %d)" % [x, y])
+		print("Before rotation: %s" % tile)
+		
 		tile.rotate_counter_clockwise()
+		
+		print("After rotation:  %s" % tile)
+		print("=========================================")
 	
 	# Update adjacent tiles to match shared walls
 	update_adjacent_walls(x, y, tile)
+	
+	# Update visual representation for this tile and neighbors
+	for dy in [-1, 0, 1]:
+		for dx in [-1, 0, 1]:
+			var nx = x + dx
+			var ny = y + dy
+			if nx >= 0 and nx < grid_width and ny >= 0 and ny < grid_height:
+				var wc = tile_visuals[ny][nx].get_meta("wall_layer")
+				if wc:
+					update_wall_visuals(wc, tiles[ny][nx])
 	
 	print("Rotated tile at (%d,%d) %s" % [x, y, "clockwise" if clockwise else "counter-clockwise"])
 	return true
