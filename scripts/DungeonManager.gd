@@ -127,13 +127,15 @@ func update_adjacent_walls(x: int, y: int, tile: Tile) -> void:
 		west_tile.set_state(Side.SIDE_RIGHT, tile.get_state(Side.SIDE_LEFT))
 
 func _input(event):
-	if event.is_action_pressed("rotate_clockwise"):
+	# Handle left click to rotate clockwise
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not event.shift:
 		var mouse_pos = get_global_mouse_position()
 		var grid_x = int(mouse_pos.x / tile_size)
 		var grid_y = int(mouse_pos.y / tile_size)
 		rotate_tile(grid_x, grid_y, true)
 	
-	if event.is_action_pressed("rotate_counter_clockwise"):
+	# Handle shift+left click to rotate counter-clockwise
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and event.shift:
 		var mouse_pos = get_global_mouse_position()
 		var grid_x = int(mouse_pos.x / tile_size)
 		var grid_y = int(mouse_pos.y / tile_size)

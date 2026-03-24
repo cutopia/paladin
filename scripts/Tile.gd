@@ -1,5 +1,7 @@
 # Tile.gd - Represents a single floor tile in the dungeon
 # Each side (N/E/S/W) can be either a Wall or Doorway
+
+const Side = preload("res://scripts/Side.gd")
 enum State { WALL, DOORWAY }
 
 var sides: Dictionary = {}

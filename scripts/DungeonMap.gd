@@ -10,7 +10,9 @@ const Tile = preload("res://scripts/Tile.gd")
 @export var tile_size: int = 64
 
 var tiles: Array[Array] = []
-var floor_tile_scene: PackedScene = preload("res://scenes/floor_tile.tscn")
+
+# Floor texture - replace with your actual texture path if different
+const FLOOR_TEXTURE = preload("res://dungeon_floor.png")
 
 func _ready():
 	generate_dungeon()
@@ -35,7 +37,8 @@ func generate_dungeon() -> void:
 	print("Total tiles: %d" % (grid_width * grid_height))
 
 func spawn_tile_visual(x: int, y: int, tile: Tile) -> void:
-	var floor_sprite = floor_tile_scene.instantiate()
+	var floor_sprite = Sprite2D.new()
+	floor_sprite.texture = FLOOR_TEXTURE
 	floor_sprite.position = Vector2(x * tile_size + tile_size/2, y * tile_size + tile_size/2)
 	add_child(floor_sprite)
 	

@@ -1,15 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://GameScene"]
+[gd_scene load_steps=4 format=3 uid="uid://GameScene"]
 
-[sub_resource type="GDScript" id="1"]
-script/source = "res://scripts/Game.gd"
+[ext_resource type="Script" path="res://scripts/Game.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/DungeonManager.gd" id="2_script"]
+[ext_resource type="Script" path="res://scripts/UI.gd" id="3_script"]
 
 [node name="Game" type="Node2D"]
-script = SubResource("1")
+script = ExtResource("1_script")
 
 [node name="DungeonManager" type="Node2D" parent="."]
-script = Script.new()
-script/resource_path = "res://scripts/DungeonManager.gd"
+script = ExtResource("2_script")
 
 [node name="UI" type="Control" parent="."]
-script = Script.new()
-script/resource_path = "res://scripts/UI.gd"
+script = ExtResource("3_script")

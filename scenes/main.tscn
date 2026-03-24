@@ -1,6 +1,14 @@
 [gd_scene load_steps=2 format=3 uid="uid://main"]
 
-[ext_resource type="Script" uid="uid://6xbmj6w80ay" path="res://scripts/Game.gd" id="1a"]
+[ext_resource type="Script" path="res://scripts/Game.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/DungeonManager.gd" id="2_script"]
+[ext_resource type="Script" path="res://scripts/UI.gd" id="3_script"]
 
 [node name="Game" type="Node2D"]
-script = ExtResource("1a")
+script = ExtResource("1_script")
+
+[node name="DungeonManager" type="Node2D" parent="."]
+script = ExtResource("2_script")
+
+[node name="UI" type="Control" parent="."]
+script = ExtResource("3_script")
