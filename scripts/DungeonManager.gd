@@ -128,14 +128,14 @@ func update_adjacent_walls(x: int, y: int, tile: Tile) -> void:
 
 func _input(event):
 	# Handle left click to rotate clockwise
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not event.shift:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and not event.shift_pressed:
 		var mouse_pos = get_global_mouse_position()
 		var grid_x = int(mouse_pos.x / tile_size)
 		var grid_y = int(mouse_pos.y / tile_size)
 		rotate_tile(grid_x, grid_y, true)
 	
 	# Handle shift+left click to rotate counter-clockwise
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and event.shift:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and event.shift_pressed:
 		var mouse_pos = get_global_mouse_position()
 		var grid_x = int(mouse_pos.x / tile_size)
 		var grid_y = int(mouse_pos.y / tile_size)

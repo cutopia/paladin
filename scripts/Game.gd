@@ -19,10 +19,10 @@ func _ready():
 	# Create a label to show something is working
 	var label = Label.new()
 	label.name = "Title"
-	label.set_anchor_left(0.5)
-	label.set_anchor_top(0.1)
-	label.set_anchor_right(0.5)
-	label.set_anchor_bottom(0.1)
+	label.anchor_left = 0.5
+	label.anchor_top = 0.1
+	label.anchor_right = 0.5
+	label.anchor_bottom = 0.1
 	label.position = Vector2(0, -20)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
