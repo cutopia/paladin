@@ -5,23 +5,14 @@ const Side = preload("res://scripts/Side.gd")
 enum State { WALL, DOORWAY }
 
 var sides: Dictionary = {}
+var visited: bool = false
 
 func _init():
-	# Initialize with guaranteed mix of walls and doorways
-	# Use position-based seed for variety while ensuring each tile has both walls and doorways
-	var x = get_instance_id() & 0xFFFF
-	var y = (get_instance_id() >> 16) & 0xFFFF
-	var seed = hash("%d,%d" % [x, y])
-	
-	# Ensure positive value and range 1-14 (patterns that have at least one wall and one doorway)
-	# Pattern 0 (0000) = all doorways, Pattern 15 (1111) = all walls - we exclude these
-	var abs_seed = seed if seed >= 0 else -seed
-	var pattern = (abs_seed % 14) + 1  # Range: 1 to 14
-	
-	sides[Side.SIDE_TOP] = (pattern & 8) >> 3
-	sides[Side.SIDE_RIGHT] = (pattern & 4) >> 2
-	sides[Side.SIDE_BOTTOM] = (pattern & 2) >> 1
-	sides[Side.SIDE_LEFT] = pattern & 1
+	# Initialize with all walls - maze generation algorithm will create doorways
+	sides[Side.SIDE_TOP] = State.WALL
+	sides[Side.SIDE_RIGHT] = State.WALL
+	sides[Side.SIDE_BOTTOM] = State.WALL
+	sides[Side.SIDE_LEFT] = State.WALL
 
 func get_state(side: int) -> int:
 	return sides.get(side, State.WALL)

@@ -30,21 +30,7 @@ func _ready():
 	label.text = "Paladin's Path"
 	add_child(label)
 
-func _draw() -> void:
-	# Draw a simple grid to visualize the dungeon
-	var tile_size = 64
-	var grid_width = 20
-	var grid_height = 20
-	
-	for y in range(grid_height):
-		for x in range(grid_width):
-			var rect = Rect2(x * tile_size, y * tile_size, tile_size, tile_size)
-			
-			# Alternating colors to make grid visible
-			if (x + y) % 2 == 0:
-				draw_rect(rect, Color(0.2, 0.2, 0.3, 0.5), true)
-			else:
-				draw_rect(rect, Color(0.15, 0.15, 0.25, 0.5), true)
+
 
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):

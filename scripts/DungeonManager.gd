@@ -1,6 +1,6 @@
 # DungeonManager.gd - Manages dungeon generation using recursive maze algorithm
 
-extends CanvasItem  # Changed from Node2D to CanvasItem for proper drawing
+extends Node2D
 
 const Side = preload("res://scripts/Side.gd")
 const Tile = preload("res://scripts/Tile.gd")
@@ -18,12 +18,10 @@ var floor_texture: Texture2D
 # Visual nodes storage
 var tile_visuals: Array[Array] = []
 
-# Track which cells have been visited during maze generation
-var visited_cells: Array[Array] = []
-
 func _ready():
 	floor_texture = preload("res://assets/sprites/tile_sprites.png")
-	# Now properly draws via CanvasItem's _draw() method instead of connect()
+	set_process_input(true)
+	queue_redraw()
 
 func start_game() -> void:
 	print("Starting game at level %d" % current_level)
@@ -35,13 +33,11 @@ func start_game() -> void:
 func generate_dungeon() -> void:
 	tiles.clear()
 	tile_visuals.clear()
-	visited_cells.clear()
 	
 	# Initialize all tiles with walls on all sides
 	for y in range(grid_height):
 		var row = []
 		var visual_row = []
-		var visited_row = []
 		for x in range(grid_width):
 			var tile = Tile.new()
 			# Set all sides to WALL initially
@@ -51,10 +47,8 @@ func generate_dungeon() -> void:
 			tile.set_state(Side.SIDE_LEFT, Tile.State.WALL)
 			row.append(tile)
 			visual_row.append(null)
-			visited_row.append(false)
 		tiles.append(row)
 		tile_visuals.append(visual_row)
-		visited_cells.append(visited_row)
 	
 	# Generate maze using recursive backtracking starting from (1,1)
 	var start_x = 1
@@ -67,10 +61,12 @@ func generate_dungeon() -> void:
 	for y in range(grid_height):
 		for x in range(grid_width):
 			create_tile_visual(x, y, tiles[y][x])
+	
+	queue_redraw()
 
 func generate_maze(x: int, y: int) -> void:
 	# Mark current cell as visited
-	visited_cells[y][x] = true
+	tiles[y][x].visited = true
 	
 	# Get unvisited neighbors (cells that are 2 steps away with walls between)
 	var neighbors = get_unvisited_neighbors(x, y)
@@ -102,7 +98,7 @@ func get_unvisited_neighbors(x: int, y: int) -> Array:
 	]
 	
 	for dir in directions:
-		if is_valid_cell(dir.x, dir.y) and not visited_cells[dir.y][dir.x]:
+		if is_valid_cell(dir.x, dir.y) and not tiles[dir.y][dir.x].visited:
 			neighbors.append({"x": dir.x, "y": dir.y})
 	
 	return neighbors
@@ -132,63 +128,58 @@ func remove_wall(x1: int, y1: int, x2: int, y2: int) -> void:
 			tiles[y1][x1].set_state(Side.SIDE_RIGHT, Tile.State.DOORWAY)
 
 func create_tile_visual(x: int, y: int, tile: Tile) -> void:
-	var floor_sprite = Sprite2D.new()
-	floor_sprite.texture = floor_texture
-	floor_sprite.position = Vector2(x * tile_size + tile_size/2, y * tile_size + tile_size/2)
-	add_child(floor_sprite)
+	# Store the tile position for later use in drawing
+	var tile_data = {
+		"x": x,
+		"y": y,
+		"tile": tile
+	}
+	tile_visuals[y][x] = tile_data
 	
-	# Create wall visualization using a Control node for lines
-	var wall_container = Control.new()
-	wall_container.name = "WallVisuals_%d_%d" % [x, y]
-	wall_container.size = Vector2(tile_size, tile_size)
-	wall_container.position = Vector2(x * tile_size, y * tile_size)
-	floor_sprite.add_child(wall_container)
-	
-	# Store reference for later updates
-	floor_sprite.set_meta("grid_x", x)
-	floor_sprite.set_meta("grid_y", y)
-	floor_sprite.set_meta("wall_layer", wall_container)
-	
-	tile_visuals[y][x] = floor_sprite
+	print("Created visual for tile at (%d,%d)" % [x, y])
 
 func _draw() -> void:
-	# Draw only walls as filled rectangles; doorways remain open
+	# Draw floor tiles and walls using CanvasItem drawing methods
+	
+	# First draw floor background for all tiles
+	for y in range(grid_height):
+		for x in range(grid_width):
+			var tile_pos = Vector2(x * tile_size, y * tile_size)
+			
+			# Draw floor background - use a simple color to avoid texture issues
+			var floor_color = Color(0.15, 0.15, 0.2, 1)  # Very dark blue-gray
+			draw_rect(Rect2(tile_pos, Vector2(tile_size, tile_size)), floor_color)
+	
+	# Then draw walls as lines/rectangles on top
+	var wall_color = Color(0.8, 0.7, 0.6, 1)  # Lighter brownish for walls
+	var line_width = 8
+	
 	for y in range(grid_height):
 		for x in range(grid_width):
 			var tile = tiles[y][x]
-			var wc = tile_visuals[y][x].get_meta("wall_layer")
-			if not wc:
-				continue
 			
-			var wall_color = Color(0.6, 0.5, 0.4, 1)  # Brownish for walls
-			var line_width = 8
+			# Calculate position relative to this CanvasItem
+			var tile_pos = Vector2(x * tile_size, y * tile_size)
 			
-			# Draw each side as a filled rectangle instead of lines
+			# Draw each side as a filled rectangle
 			for side in [Side.SIDE_TOP, Side.SIDE_RIGHT, Side.SIDE_BOTTOM, Side.SIDE_LEFT]:
 				var state = tile.get_state(side)
 				if state == Tile.State.WALL:
 					match side:
 						Side.SIDE_TOP:
 							# Draw top edge rectangle
-							draw_rect(Rect2(wc.position.x, wc.position.y, wc.size.x, line_width), wall_color)
+							draw_rect(Rect2(tile_pos.x, tile_pos.y, tile_size, line_width), wall_color)
 						Side.SIDE_RIGHT:
 							# Draw right edge rectangle
-							draw_rect(Rect2(wc.position.x + wc.size.x - line_width, wc.position.y, line_width, wc.size.y), wall_color)
+							draw_rect(Rect2(tile_pos.x + tile_size - line_width, tile_pos.y, line_width, tile_size), wall_color)
 						Side.SIDE_BOTTOM:
 							# Draw bottom edge rectangle
-							draw_rect(Rect2(wc.position.x, wc.position.y + wc.size.y - line_width, wc.size.x, line_width), wall_color)
+							draw_rect(Rect2(tile_pos.x, tile_pos.y + tile_size - line_width, tile_size, line_width), wall_color)
 						Side.SIDE_LEFT:
 							# Draw left edge rectangle
-							draw_rect(Rect2(wc.position.x, wc.position.y, line_width, wc.size.y), wall_color)
+							draw_rect(Rect2(tile_pos.x, tile_pos.y, line_width, tile_size), wall_color)
 
-func update_wall_visuals(wall_container: Control, tile: Tile) -> void:
-	# Update the stored tile reference and redraw
-	wall_container.set_meta("tile", tile)
-	queue_redraw()
-	
-	var x = int(wall_container.position.x / tile_size)
-	var y = int(wall_container.position.y / tile_size)
-	print("Updated walls at (%d,%d)" % [x, y])
+
 
 func spawn_paladin() -> void:
 	# Spawn paladin at center of dungeon
@@ -270,15 +261,8 @@ func rotate_tile(x: int, y: int, clockwise: bool = true) -> bool:
 	# Update adjacent tiles to match shared walls
 	update_adjacent_walls(x, y, tile)
 	
-	# Update visual representation for this tile and neighbors
-	for dy in [-1, 0, 1]:
-		for dx in [-1, 0, 1]:
-			var nx = x + dx
-			var ny = y + dy
-			if nx >= 0 and nx < grid_width and ny >= 0 and ny < grid_height:
-				var wc = tile_visuals[ny][nx].get_meta("wall_layer")
-				if wc:
-					update_wall_visuals(wc, tiles[ny][nx])
+	# Trigger redraw for visual updates
+	queue_redraw()
 	
 	print("Rotated tile at (%d,%d) %s" % [x, y, "clockwise" if clockwise else "counter-clockwise"])
 	return true
