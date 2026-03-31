@@ -71,7 +71,7 @@ func create_tile_visual(x: int, y: int, tile: Tile) -> void:
 	tile_visuals[y][x] = floor_sprite
 
 func _draw() -> void:
-	# Draw all walls using CanvasItem draw methods with colored rectangles
+	# Draw only walls as filled rectangles; doorways remain open
 	for y in range(grid_height):
 		for x in range(grid_width):
 			var tile = tiles[y][x]
@@ -80,27 +80,26 @@ func _draw() -> void:
 				continue
 			
 			var wall_color = Color(0.6, 0.5, 0.4, 1)  # Brownish for walls
-			var doorway_color = Color(0.3, 0.7, 0.9, 1)  # Blue-ish for doorways
 			var line_width = 8
 			
 			# Draw each side as a filled rectangle instead of lines
 			for side in [Side.SIDE_TOP, Side.SIDE_RIGHT, Side.SIDE_BOTTOM, Side.SIDE_LEFT]:
 				var state = tile.get_state(side)
-				var color = wall_color if state == Tile.State.WALL else doorway_color
-				
-				match side:
-					Side.SIDE_TOP:
-						# Draw top edge rectangle
-						draw_rect(Rect2(wc.position.x, wc.position.y, wc.size.x, line_width), color)
-					Side.SIDE_RIGHT:
-						# Draw right edge rectangle
-						draw_rect(Rect2(wc.position.x + wc.size.x - line_width, wc.position.y, line_width, wc.size.y), color)
-					Side.SIDE_BOTTOM:
-						# Draw bottom edge rectangle
-						draw_rect(Rect2(wc.position.x, wc.position.y + wc.size.y - line_width, wc.size.x, line_width), color)
-					Side.SIDE_LEFT:
-						# Draw left edge rectangle
-						draw_rect(Rect2(wc.position.x, wc.position.y, line_width, wc.size.y), color)
+				var color = wall_color
+				if state == Tile.State.WALL:
+					match side:
+						Side.SIDE_TOP:
+							# Draw top edge rectangle
+							draw_rect(Rect2(wc.position.x, wc.position.y, wc.size.x, line_width), color)
+						Side.SIDE_RIGHT:
+							# Draw right edge rectangle
+							draw_rect(Rect2(wc.position.x + wc.size.x - line_width, wc.position.y, line_width, wc.size.y), color)
+						Side.SIDE_BOTTOM:
+							# Draw bottom edge rectangle
+							draw_rect(Rect2(wc.position.x, wc.position.y + wc.size.y - line_width, wc.size.x, line_width), color)
+						Side.SIDE_LEFT:
+							# Draw left edge rectangle
+							draw_rect(Rect2(wc.position.x, wc.position.y, line_width, wc.size.y), color)
 
 func update_wall_visuals(wall_container: Control, tile: Tile) -> void:
 	# Update the stored tile reference and redraw
