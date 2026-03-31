@@ -33,6 +33,7 @@ func generate_dungeon() -> void:
 	tiles.clear()
 	tile_visuals.clear()
 	
+	# Initialize all tiles first
 	for y in range(grid_height):
 		var row = []
 		var visual_row = []
@@ -43,7 +44,66 @@ func generate_dungeon() -> void:
 		tiles.append(row)
 		tile_visuals.append(visual_row)
 	
+	# Initialize shared walls systematically
+	# For each internal wall, set it once based on the tile to the north or west
+	for y in range(grid_height):
+		for x in range(grid_width):
+			var tile = tiles[y][x]
+			
+			# Set top side based on tile above (if exists)
+			if y > 0:
+				var new_top = tiles[y-1][x].get_state(Side.SIDE_BOTTOM)
+				
+				# If setting this would make all sides the same, flip one other side first
+				var states = [tile.get_state(Side.SIDE_TOP), tile.get_state(Side.SIDE_RIGHT), 
+				              tile.get_state(Side.SIDE_BOTTOM), tile.get_state(Side.SIDE_LEFT)]
+				states[0] = new_top  # Simulate the change
+				var all_same = true
+				for i in range(1, 4):
+					if states[i] != states[0]:
+						all_same = false
+						break
+				
+				if all_same:
+					# Flip one of the other sides to avoid all-same state
+					if tile.get_state(Side.SIDE_RIGHT) == new_top:
+						tile.set_state(Side.SIDE_RIGHT, 1 - new_top)
+					else:
+						tile.set_state(Side.SIDE_BOTTOM, 1 - new_top)
+				
+				tile.set_state(Side.SIDE_TOP, new_top)
+			
+			# Set left side based on tile to the left (if exists)
+			if x > 0:
+				var new_left = tiles[y][x-1].get_state(Side.SIDE_RIGHT)
+				
+				# If setting this would make all sides the same, flip one other side first
+				var states = [tile.get_state(Side.SIDE_TOP), tile.get_state(Side.SIDE_RIGHT), 
+				              tile.get_state(Side.SIDE_BOTTOM), tile.get_state(Side.SIDE_LEFT)]
+				states[3] = new_left  # Simulate the change
+				var all_same = true
+				for i in range(3):
+					if states[i] != states[3]:
+						all_same = false
+						break
+				
+				if all_same:
+					# Flip one of the other sides to avoid all-same state
+					if tile.get_state(Side.SIDE_TOP) == new_left:
+						tile.set_state(Side.SIDE_TOP, 1 - new_left)
+					else:
+						tile.set_state(Side.SIDE_BOTTOM, 1 - new_left)
+				
+				tile.set_state(Side.SIDE_LEFT, new_left)
+	
 	print("Generated dungeon grid: %dx%d" % [grid_width, grid_height])
+	
+	print("Generated dungeon grid: %dx%d" % [grid_width, grid_height])
+	
+	# Create visual representation for all tiles
+	for y in range(grid_height):
+		for x in range(grid_width):
+			create_tile_visual(x, y, tiles[y][x])
 	
 	# Create visual representation for all tiles
 	for y in range(grid_height):
@@ -238,3 +298,6 @@ func _input(event):
 		var grid_x = int(mouse_pos.x / tile_size)
 		var grid_y = int(mouse_pos.y / tile_size)
 		rotate_tile(grid_x, grid_y, false)
+
+func get_state_name_at_index(tile: Tile, index: int) -> String:
+	return tile.get_state_name(index)
